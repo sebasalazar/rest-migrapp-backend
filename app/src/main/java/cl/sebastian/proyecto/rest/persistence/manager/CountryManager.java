@@ -6,6 +6,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("countryManager")
 public class CountryManager implements Serializable {
@@ -26,5 +27,14 @@ public class CountryManager implements Serializable {
             country = countryRepository.findByCode(code);
         }
         return country;
+    }
+
+    @Transactional
+    public Country save(final Country country) {
+        Country saved = null;
+        if (country != null) {
+            saved = countryRepository.save(country);
+        }
+        return saved;
     }
 }

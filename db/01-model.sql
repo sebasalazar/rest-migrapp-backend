@@ -23,7 +23,6 @@ CREATE TABLE countries (
     currency_code int NOT NULL,
     decimal_precision int NOT NULL,
     currency_name varchar(255) NOT NULL,
-    currency_symbol  varchar(255) NOT NULL DEFAULT '$',
     active boolean NOT NULL DEFAULT '0', -- Flag que indica si el comercio está activo
     created timestamp NOT NULL DEFAULT NOW(), -- Fecha de creación del registro
     updated timestamp NOT NULL DEFAULT NOW(), -- Fecha de actualización del registro.

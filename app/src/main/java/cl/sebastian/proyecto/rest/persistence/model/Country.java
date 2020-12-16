@@ -18,7 +18,7 @@ public class Country extends PkEntityBase {
     @Column(name = "name", nullable = false)
     private String name = null;
 
-    @Column(name = "code", nullable = false)
+    @Column(name = "code", nullable = false, unique = true)
     private String code = null;
 
     @Column(name = "abbr", nullable = false)
@@ -27,17 +27,14 @@ public class Country extends PkEntityBase {
     @Column(name = "currency_name", nullable = false)
     private String currencyName = null;
 
-    @Column(name = "currency_iso", nullable = false, unique = true)
+    @Column(name = "currency_iso", nullable = false)
     private String currencyIso = null;
 
-    @Column(name = "currency_code", nullable = false, unique = true)
+    @Column(name = "currency_code", nullable = false)
     private Integer currencyCode = null;
 
     @Column(name = "decimal_precision", nullable = false)
     private Integer decimalPrecision = null;
-
-    @Column(name = "currency_symbol", nullable = false)
-    private String symbol = null;
 
     @Column(name = "active", nullable = false)
     private boolean active = false;
@@ -104,14 +101,6 @@ public class Country extends PkEntityBase {
 
     public void setDecimalPrecision(Integer decimalPrecision) {
         this.decimalPrecision = decimalPrecision;
-    }
-
-    public String getSymbol() {
-        return symbol;
-    }
-
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
     }
 
     public boolean isActive() {

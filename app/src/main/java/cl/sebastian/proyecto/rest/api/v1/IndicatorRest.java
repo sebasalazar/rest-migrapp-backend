@@ -3,6 +3,7 @@ package cl.sebastian.proyecto.rest.api.v1;
 import cl.sebastian.proyecto.rest.api.vo.ErrorVO;
 import cl.sebastian.proyecto.rest.api.vo.IndicatorRequestVO;
 import cl.sebastian.proyecto.rest.api.vo.IndicatorVO;
+import cl.sebastian.proyecto.rest.service.CacheService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -10,9 +11,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.Serializable;
 import java.util.ArrayList;
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,12 +26,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = {"/v1/indicators"}, consumes = {"application/json; charset=UTF-8"}, produces = {"application/json; charset=UTF-8"})
+@RequestMapping(value = {"/api/v1/indicators"}, consumes = {"application/json; charset=UTF-8"}, produces = {"application/json; charset=UTF-8"})
 @Api(value = "Información relativa a los indicadores económicos")
 public class IndicatorRest implements Serializable {
 
     private static final long serialVersionUID = 5743847088743006208L;
+
+    @Autowired
+    private transient CacheService cacheService;
     private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorRest.class);
+
+    @PostConstruct
+    public void initRest() {
+        LOGGER.info("=== Preparando Servicio API de Indicadores ===");
+
+        LOGGER.info("=== Servicio API de Indicadores listo para usarse ===");
+    }
 
     @ApiOperation(value = "Obtiene la información de un indicador.")
     @ApiResponses(value = {
