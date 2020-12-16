@@ -3,6 +3,7 @@ package cl.sebastian.proyecto.rest.persistence.manager;
 import cl.sebastian.proyecto.rest.persistence.model.Country;
 import cl.sebastian.proyecto.rest.persistence.repository.CountryRepository;
 import java.io.Serializable;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,14 @@ public class CountryManager implements Serializable {
             country = countryRepository.findByCode(code);
         }
         return country;
+    }
+
+    /**
+     *
+     * @return Todos los países
+     */
+    public List<Country> getCountries() {
+        return countryRepository.findAll();
     }
 
     @Transactional

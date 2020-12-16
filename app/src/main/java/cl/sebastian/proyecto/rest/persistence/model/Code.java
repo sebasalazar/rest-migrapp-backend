@@ -29,6 +29,11 @@ public enum Code {
         public String getUnit() {
             return "US$";
         }
+
+        @Override
+        public String worldBank() {
+            return "NY.GDP.MKTP.CD";
+        }
     },
     /**
      * Tasa de desempleo anual.
@@ -55,6 +60,11 @@ public enum Code {
         @Override
         public String getUnit() {
             return "%";
+        }
+
+        @Override
+        public String worldBank() {
+            return "SL.UEM.TOTL.ZS";
         }
     },
     /**
@@ -90,6 +100,11 @@ public enum Code {
         public String getUnit() {
             return "%";
         }
+
+        @Override
+        public String worldBank() {
+            return "FP.CPI.TOTL.ZG";
+        }
     },
     /**
      *
@@ -119,6 +134,11 @@ public enum Code {
         @Override
         public String getUnit() {
             return "%";
+        }
+
+        @Override
+        public String worldBank() {
+            return "GC.TAX.GSRV.VA.ZS";
         }
     },
     /**
@@ -150,6 +170,11 @@ public enum Code {
         public String getUnit() {
             return "%";
         }
+
+        @Override
+        public String worldBank() {
+            return "GC.TAX.TOTL.GD.ZS";
+        }
     },
     /**
      * Salario Mínimo (US$ a precios actuales).
@@ -178,6 +203,11 @@ public enum Code {
         @Override
         public String getUnit() {
             return "US$";
+        }
+
+        @Override
+        public String worldBank() {
+            return "";
         }
     },
     /**
@@ -208,6 +238,11 @@ public enum Code {
         @Override
         public String getUnit() {
             return "US$";
+        }
+
+        @Override
+        public String worldBank() {
+            return "PA.NUS.FCRF";
         }
     },
     /**
@@ -241,6 +276,11 @@ public enum Code {
         public String getUnit() {
             return "Ranking";
         }
+
+        @Override
+        public String worldBank() {
+            return "IC.BUS.EASE.XQ";
+        }
     };
 
     /**
@@ -260,4 +300,10 @@ public enum Code {
      * @return La unidad del indicador.
      */
     public abstract String getUnit();
+
+    /**
+     *
+     * @return El código usado en el BancoMundial.
+     */
+    public abstract String worldBank();
 }

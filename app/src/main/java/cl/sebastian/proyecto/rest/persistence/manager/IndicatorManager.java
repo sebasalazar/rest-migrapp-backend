@@ -7,6 +7,7 @@ import cl.sebastian.proyecto.rest.persistence.repository.IndicatorRepository;
 import java.io.Serializable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("indicatorManager")
 public class IndicatorManager implements Serializable {
@@ -29,5 +30,19 @@ public class IndicatorManager implements Serializable {
             indicator = indicatorRepository.findByCountryAndCodeAndYear(country, code, year);
         }
         return indicator;
+    }
+
+    /**
+     *
+     * @param indicator Indicador a persistir
+     * @return El indicador persistido
+     */
+    @Transactional
+    public Indicator save(final Indicator indicator) {
+        Indicator saved = null;
+        if (indicator != null) {
+            saved = indicatorRepository.save(indicator);
+        }
+        return saved;
     }
 }

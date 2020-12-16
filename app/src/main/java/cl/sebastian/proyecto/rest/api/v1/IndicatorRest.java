@@ -3,6 +3,7 @@ package cl.sebastian.proyecto.rest.api.v1;
 import cl.sebastian.proyecto.rest.api.vo.ErrorVO;
 import cl.sebastian.proyecto.rest.api.vo.IndicatorRequestVO;
 import cl.sebastian.proyecto.rest.api.vo.IndicatorVO;
+import cl.sebastian.proyecto.rest.loader.indicator.IndicatorLoader;
 import cl.sebastian.proyecto.rest.service.CacheService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,13 +34,15 @@ public class IndicatorRest implements Serializable {
     private static final long serialVersionUID = 5743847088743006208L;
 
     @Autowired
+    private transient IndicatorLoader indicatorLoader;
+    @Autowired
     private transient CacheService cacheService;
     private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorRest.class);
 
     @PostConstruct
     public void initRest() {
         LOGGER.info("=== Preparando Servicio API de Indicadores ===");
-
+        indicatorLoader.load();
         LOGGER.info("=== Servicio API de Indicadores listo para usarse ===");
     }
 
