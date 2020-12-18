@@ -2,7 +2,7 @@ package cl.sebastian.proyecto.rest.persistence.model;
 
 public enum Code {
     /**
-     * Producto Interno Bruto
+     * 0 - Producto Interno Bruto
      *
      * Código: PIB.
      *
@@ -36,7 +36,7 @@ public enum Code {
         }
     },
     /**
-     * Tasa de desempleo anual.
+     * 1 - Tasa de desempleo anual.
      *
      * Código: TDA.
      *
@@ -68,7 +68,7 @@ public enum Code {
         }
     },
     /**
-     * Inflación.
+     * 2 - Inflación.
      *
      * Código: IFL.
      *
@@ -108,7 +108,7 @@ public enum Code {
     },
     /**
      *
-     * Impuesto de Valor Añadido.
+     * 3 - Impuesto de Valor Añadido.
      *
      * Código: IVA.
      *
@@ -142,7 +142,7 @@ public enum Code {
         }
     },
     /**
-     * Presión Fiscal.
+     * 4 - Presión Fiscal.
      *
      * Código: PRF
      *
@@ -177,7 +177,7 @@ public enum Code {
         }
     },
     /**
-     * Salario Mínimo (US$ a precios actuales).
+     * 5 - Salario Mínimo (US$ a precios actuales).
      *
      * Código: SMI
      *
@@ -202,7 +202,7 @@ public enum Code {
 
         @Override
         public String getUnit() {
-            return "US$";
+            return "US$ por año";
         }
 
         @Override
@@ -211,7 +211,7 @@ public enum Code {
         }
     },
     /**
-     * Tasa de cambio (US$ a precios actuales).
+     * 6 - Tasa de cambio (US$ a precios actuales).
      *
      * Código: TSC
      *
@@ -246,7 +246,7 @@ public enum Code {
         }
     },
     /**
-     * Doing Business Index.
+     * 7 - Doing Business Index.
      *
      * Código: DBI
      *
