@@ -1,5 +1,6 @@
 package cl.sebastian.proyecto.rest.loader.indicator;
 
+import cl.sebastian.proyecto.rest.loader.indicator.vo.ILOIndicatorVO;
 import cl.sebastian.proyecto.rest.loader.indicator.vo.WBIndicatorVO;
 import cl.sebastian.proyecto.rest.persistence.manager.CountryManager;
 import cl.sebastian.proyecto.rest.persistence.manager.IndicatorManager;
@@ -38,6 +39,7 @@ public class IndicatorLoader implements Serializable {
     private transient IndicatorManager indicatorManager;
 
     private static final String WB_API_URL = "http://api.worldbank.org/v2/country";
+    private static final String ILO_API_URL = "https://www.ilo.org/data-api/rest/v1/data";
     private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorLoader.class);
 
     @Async
@@ -122,6 +124,55 @@ public class IndicatorLoader implements Serializable {
         }
     }
 
+    public void ilo(final Country country, final Date created) {
+        try {
+            try {
+                final Code code = Code.SMI;
+                final String url = String.format("%s/DF_YI_ALL_EAR_INEE_NOC_NB/.%s.A..?detail=dataonly&format=codeonly",
+                        ILO_API_URL, country.getAbbr());
+                if (UrlValidator.getInstance().isValid(url)) {
+                    LOGGER.info("Accediendo a la URL '{}'", url);
+
+                    /**
+                     * Llamada servicos REST
+                     */
+                    RestTemplate restTemplate = new RestTemplate();
+                    ResponseEntity<String> response = restTemplate.getForEntity(new URI(url), String.class);
+                    if (response.getStatusCode().isError()) {
+                        LOGGER.error("El servicio responde con error '{}' en código '{}'", response.getStatusCode(), code);
+                    } else {
+                        String body = StringUtils.trimToEmpty(response.getBody());
+                        LOGGER.debug(body);
+
+                        ObjectMapper mapper = new ObjectMapper();
+                        List<ILOIndicatorVO> list = mapper.readValue(body, new TypeReference<List<ILOIndicatorVO>>() {
+                        });
+
+                        if (CollectionUtils.isNotEmpty(list)) {
+                            for (ILOIndicatorVO vo : list) {
+                                int year = NumberUtils.toInt(vo.getTimePeriod());
+                                Integer number = vo.getObsValue();
+                                if (number != null) {
+                                    String value = String.format("%d", number);
+                                    saveIndicator(code, country, year, value, created);
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    LOGGER.error("Url '{}' inválida", url);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error al procesar indicador: {}", e.getMessage());
+                LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
+            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
+        }
+    }
+
     public void load() {
         try {
             List<Country> countries = countryManager.getCountries();
@@ -141,6 +192,7 @@ public class IndicatorLoader implements Serializable {
                              *
                              * Este dato se tiene que buscar en otra fuente.
                              */
+                            ilo(country, created);
                         } else {
                             /**
                              * Estos datos se obtienen desde el Banco mundial
