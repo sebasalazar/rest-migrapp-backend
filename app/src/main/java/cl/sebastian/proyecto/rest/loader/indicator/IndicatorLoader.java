@@ -41,18 +41,22 @@ public class IndicatorLoader implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorLoader.class);
 
     @Async
-    public void saveIndicator(final Code code, final Country country, final Integer year, final BigDecimal value, final Date created) {
+    public void saveIndicator(final Code code, final Country country, final Integer year, final String value, final Date created) {
         try {
             Indicator indicator = indicatorManager.getIndicator(country, code, year);
             if (indicator == null) {
-                indicator = new Indicator();
-                indicator.setCode(code);
-                indicator.setCountry(country);
-                indicator.setCreated(created);
-                indicator.setYear(year);
-                indicator.setValue(value);
-                indicator.setUpdated(new Date());
-                indicatorManager.save(indicator);
+                if (StringUtils.isNotBlank(value) && year > 1900) {
+                    BigDecimal indicatorValue = new BigDecimal(value).setScale(2, RoundingMode.HALF_UP);
+
+                    indicator = new Indicator();
+                    indicator.setCode(code);
+                    indicator.setCountry(country);
+                    indicator.setCreated(created);
+                    indicator.setYear(year);
+                    indicator.setValue(indicatorValue);
+                    indicator.setUpdated(new Date());
+                    indicatorManager.save(indicator);
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Error al guardar indicador: {}", e.getMessage());
@@ -66,6 +70,11 @@ public class IndicatorLoader implements Serializable {
                 // Ejempo http://api.worldbank.org/v2/country/CHL/indicator/NY.GDP.MKTP.CD?format=json
                 final String url = String.format("%s/%s/indicator/%s?format=json&per_page=125", WB_API_URL, country.getAbbr(), code.worldBank());
                 if (UrlValidator.getInstance().isValid(url)) {
+                    LOGGER.info("Accediendo a la URL '{}'", url);
+
+                    /**
+                     * Llamada servicos REST
+                     */
                     RestTemplate restTemplate = new RestTemplate();
                     ResponseEntity<String> response = restTemplate.getForEntity(new URI(url), String.class);
                     if (response.getStatusCode().isError()) {
@@ -88,13 +97,12 @@ public class IndicatorLoader implements Serializable {
                                 if (CollectionUtils.isNotEmpty(vos)) {
                                     for (WBIndicatorVO vo : vos) {
                                         Integer year = NumberUtils.toInt(vo.getDate());
-                                        if (year > 1900) {
-                                            String value = StringUtils.trimToEmpty(vo.getValue());
-                                            if (StringUtils.isNumeric(value)) {
-                                                BigDecimal indicatorValue = new BigDecimal(value).setScale(2, RoundingMode.HALF_UP);
-                                                saveIndicator(Code.PIB, country, year, indicatorValue, created);
-                                            }
-                                        }
+                                        String value = StringUtils.trimToEmpty(vo.getValue());
+
+                                        /**
+                                         * Tratamos de persistir en DB
+                                         */
+                                        saveIndicator(code, country, year, value, created);
                                     }
                                 }
                             }
@@ -126,7 +134,19 @@ public class IndicatorLoader implements Serializable {
                     for (Code code : values) {
                         LOGGER.info("=== País '{}' # Indicador '{}' # Año más reciente: '{}' ===",
                                 country.getName(), code.name(), currentYear);
-                        process(code, country, created);
+
+                        if (Code.SMI.equals(code)) {
+                            /**
+                             * Salario Mínimo.
+                             *
+                             * Este dato se tiene que buscar en otra fuente.
+                             */
+                        } else {
+                            /**
+                             * Estos datos se obtienen desde el Banco mundial
+                             */
+                            process(code, country, created);
+                        }
                     }
                 });
             }
