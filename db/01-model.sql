@@ -19,7 +19,7 @@ CREATE TABLE countries (
     name varchar(255) NOT NULL,
     code varchar(2) NOT NULL,
     abbr varchar(3) NOT NULL,
-    currency_iso varchar(3) NOT NULL,
+    currency_iso varchar(255) NOT NULL,
     currency_code int NOT NULL,
     decimal_precision int NOT NULL,
     currency_name varchar(255) NOT NULL,

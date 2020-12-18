@@ -35,10 +35,11 @@ public class CountryLoader implements Serializable {
     public void saveCountry(Date created, RestCountry data) {
         try {
             String code = StringUtils.upperCase(StringUtils.trimToEmpty(data.getAlpha2Code()));
+            String abbr = StringUtils.upperCase(StringUtils.trimToEmpty(data.getAlpha3Code()));
             Country country = countryManager.getCountry(code);
-            if (country == null) {
+            if (country == null && StringUtils.length(code) == 2 && StringUtils.length(abbr) == 3) {
                 country = new Country();
-                country.setAbbr(StringUtils.upperCase(StringUtils.trimToEmpty(data.getAlpha3Code())));
+                country.setAbbr(abbr);
                 country.setActive(true);
                 country.setCode(code);
                 country.setCreated(created);
@@ -50,6 +51,14 @@ public class CountryLoader implements Serializable {
                 country.setName(StringUtils.trimToEmpty(data.getName()));
                 country.setUpdated(new Date());
                 countryManager.save(country);
+            } else {
+                /**
+                 * Solo informativo, no encontré el país, pero quiero saber los
+                 * datos.
+                 */
+                if (country == null) {
+                    LOGGER.error("Error al procesar código '{}' abbr '{}'", code, abbr);
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Error al guardar país: {}", e.getMessage(), e);

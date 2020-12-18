@@ -1,6 +1,6 @@
 package cl.sebastian.proyecto.rest.loader.indicator;
 
-import cl.sebastian.proyecto.rest.loader.country.vo.RestCountry;
+import cl.sebastian.proyecto.rest.loader.indicator.vo.WBIndicatorVO;
 import cl.sebastian.proyecto.rest.persistence.manager.CountryManager;
 import cl.sebastian.proyecto.rest.persistence.manager.IndicatorManager;
 import cl.sebastian.proyecto.rest.persistence.model.Code;
@@ -10,12 +10,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.time.Year;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ public class IndicatorLoader implements Serializable {
     private static final String WB_API_URL = "http://api.worldbank.org/v2/country";
     private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorLoader.class);
 
+    @Async
     public void saveIndicator(final Code code, final Country country, final Integer year, final BigDecimal value, final Date created) {
         try {
             Indicator indicator = indicatorManager.getIndicator(country, code, year);
@@ -57,105 +60,54 @@ public class IndicatorLoader implements Serializable {
         }
     }
 
-    @Async
-    public void processDBI(final Country country, final Date created) {
+    public void process(final Code code, final Country country, final Date created) {
         try {
-            // Ejempo http://api.worldbank.org/v2/country/CHL/indicator/NY.GDP.MKTP.CD?format=json
-            final String url = String.format("%s/%s/indicator/%s?format=json", WB_API_URL, country.getAbbr(), Code.DBI.worldBank());
-            if (UrlValidator.getInstance().isValid(url)) {
+            try {
+                // Ejempo http://api.worldbank.org/v2/country/CHL/indicator/NY.GDP.MKTP.CD?format=json
+                final String url = String.format("%s/%s/indicator/%s?format=json&per_page=125", WB_API_URL, country.getAbbr(), code.worldBank());
+                if (UrlValidator.getInstance().isValid(url)) {
+                    RestTemplate restTemplate = new RestTemplate();
+                    ResponseEntity<String> response = restTemplate.getForEntity(new URI(url), String.class);
+                    if (response.getStatusCode().isError()) {
+                        LOGGER.error("El servicio responde con error '{}' en código '{}'", response.getStatusCode(), code);
+                    } else {
+                        String body = StringUtils.trimToEmpty(response.getBody());
+                        LOGGER.debug(body);
 
-                RestTemplate restTemplate = new RestTemplate();
-                ResponseEntity<String> response = restTemplate.getForEntity(new URI(url), String.class);
-                if (response.getStatusCode().isError()) {
-                    LOGGER.error("El servicio responde con error {}", response.getStatusCode());
-                } else {
-                    String body = StringUtils.trimToEmpty(response.getBody());
+                        ObjectMapper mapper = new ObjectMapper();
+                        List<Object> list = mapper.readValue(body, new TypeReference<List<Object>>() {
+                        });
 
-                    ObjectMapper mapper = new ObjectMapper();
-                    List<RestCountry> countries = mapper.readValue(body,
-                            new TypeReference<List<RestCountry>>() {
-                    });
+                        if (CollectionUtils.isNotEmpty(list)) {
+                            if (list.size() >= 2) {
+                                Object data = list.get(1);
+                                String json = mapper.writeValueAsString(data);
+                                List<WBIndicatorVO> vos = mapper.readValue(json, new TypeReference<List<WBIndicatorVO>>() {
+                                });
 
-                    if (CollectionUtils.isNotEmpty(countries)) {
-                        for (RestCountry rest : countries) {
-
+                                if (CollectionUtils.isNotEmpty(vos)) {
+                                    for (WBIndicatorVO vo : vos) {
+                                        Integer year = NumberUtils.toInt(vo.getDate());
+                                        if (year > 1900) {
+                                            String value = StringUtils.trimToEmpty(vo.getValue());
+                                            if (StringUtils.isNumeric(value)) {
+                                                BigDecimal indicatorValue = new BigDecimal(value).setScale(2, RoundingMode.HALF_UP);
+                                                saveIndicator(Code.PIB, country, year, indicatorValue, created);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+
+                } else {
+                    LOGGER.error("Url '{}' inválida", url);
                 }
-
-            } else {
-                LOGGER.error("Url '{}' inválida", url);
+            } catch (Exception e) {
+                LOGGER.error("Error al procesar indicador: {}", e.getMessage());
+                LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
             }
-        } catch (Exception e) {
-            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
-            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
-        }
-    }
-
-    @Async
-    public void processIFL(final Country country, final Date created) {
-        try {
-
-        } catch (Exception e) {
-            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
-            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
-        }
-    }
-
-    @Async
-    public void processIVA(final Country country, final Date created) {
-        try {
-
-        } catch (Exception e) {
-            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
-            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
-        }
-    }
-
-    @Async
-    public void processPIB(final Country country, final Date created) {
-        try {
-
-        } catch (Exception e) {
-            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
-            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
-        }
-    }
-
-    @Async
-    public void processPRF(final Country country, final Date created) {
-        try {
-
-        } catch (Exception e) {
-            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
-            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
-        }
-    }
-
-    @Async
-    public void processSMI(final Country country, final Date created) {
-        try {
-
-        } catch (Exception e) {
-            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
-            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
-        }
-    }
-
-    @Async
-    public void processTDA(final Country country, final Date created) {
-        try {
-
-        } catch (Exception e) {
-            LOGGER.error("Error al procesar indicador: {}", e.getMessage());
-            LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
-        }
-    }
-
-    @Async
-    public void processTSC(final Country country, final Date created) {
-        try {
-
         } catch (Exception e) {
             LOGGER.error("Error al procesar indicador: {}", e.getMessage());
             LOGGER.debug("Error al procesar indicador: {}", e.getMessage(), e);
@@ -166,21 +118,17 @@ public class IndicatorLoader implements Serializable {
         try {
             List<Country> countries = countryManager.getCountries();
             if (CollectionUtils.isNotEmpty(countries)) {
-                for (Country country : countries) {
-                    Date created = new Date();
+                Date created = new Date();
+                countries.forEach(country -> {
                     int currentYear = Year.now().getValue();
-                    LOGGER.info("Año más reciente: {}", currentYear);
 
-                    processDBI(country, created);
-                    processIFL(country, created);
-                    processIVA(country, created);
-                    processPIB(country, created);
-                    processPRF(country, created);
-                    processSMI(country, created);
-                    processTDA(country, created);
-                    processTSC(country, created);
-
-                }
+                    Code[] values = Code.values();
+                    for (Code code : values) {
+                        LOGGER.info("=== País '{}' # Indicador '{}' # Año más reciente: '{}' ===",
+                                country.getName(), code.name(), currentYear);
+                        process(code, country, created);
+                    }
+                });
             }
         } catch (Exception e) {
             LOGGER.error("Error al cargar datos: {}", e.getMessage());
