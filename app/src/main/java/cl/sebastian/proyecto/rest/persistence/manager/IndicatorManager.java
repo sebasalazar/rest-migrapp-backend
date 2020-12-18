@@ -5,6 +5,8 @@ import cl.sebastian.proyecto.rest.persistence.model.Country;
 import cl.sebastian.proyecto.rest.persistence.model.Indicator;
 import cl.sebastian.proyecto.rest.persistence.repository.IndicatorRepository;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,22 @@ public class IndicatorManager implements Serializable {
             indicator = indicatorRepository.findByCountryAndCodeAndYear(country, code, year);
         }
         return indicator;
+    }
+
+    /**
+     *
+     * @param country País
+     * @param code Código del indicador
+     * @param startYear Año de inicio
+     * @param endYear Año de termino
+     * @return Indicadores
+     */
+    public List<Indicator> getIndicators(final Country country, final Code code, final Integer startYear, final Integer endYear) {
+        List<Indicator> indicators = new ArrayList<>();
+        if (country != null && code != null) {
+            indicators = indicatorRepository.findByCountryAndCodeAndYearBetween(country, code, startYear, endYear);
+        }
+        return indicators;
     }
 
     /**

@@ -1,5 +1,6 @@
 package cl.sebastian.proyecto.rest.api.vo;
 
+import cl.sebastian.proyecto.rest.persistence.model.Country;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.annotations.ApiModel;
@@ -27,6 +28,18 @@ public class CountryVO extends BaseJson {
 
     @ApiModelProperty(value = "Código de la moneda nacional según el código ISO 4217", required = true, example = "CLP")
     private String currencyCode = null;
+
+    public CountryVO() {
+    }
+
+    public CountryVO(Country country) {
+        this.lang = country.getLang();
+        this.name = country.getName();
+        this.code = country.getCode();
+        this.abbr = country.getAbbr();
+        this.currencyName = country.getCurrencyName();
+        this.currencyCode = country.getCurrencyIso();
+    }
 
     public String getLang() {
         return lang;

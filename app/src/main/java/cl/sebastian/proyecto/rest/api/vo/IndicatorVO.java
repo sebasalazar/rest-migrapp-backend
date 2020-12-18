@@ -1,5 +1,6 @@
 package cl.sebastian.proyecto.rest.api.vo;
 
+import cl.sebastian.proyecto.rest.persistence.model.Indicator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.annotations.ApiModel;
@@ -23,17 +24,30 @@ public class IndicatorVO extends BaseJson {
     @ApiModelProperty(value = "Nombre del indicador descrito en el proyecto", required = true, example = "Producto Interno Bruto")
     private String name = null;
 
-    @ApiModelProperty(value = "Descripción del indicador descrito en el proyecto", required = true, 
+    @ApiModelProperty(value = "Descripción del indicador descrito en el proyecto", required = true,
             example = "En macroeconomía, el producto interno bruto (PIB), conocido también como producto interior o producto bruto interno (PBI), "
-                    + "es una magnitud macroeconómica que expresa el valor monetario de la producción de bienes y servicios de demanda final de un país "
-                    + "o región durante un período determinado, normalmente de un año o trimestrales.")
+            + "es una magnitud macroeconómica que expresa el valor monetario de la producción de bienes y servicios de demanda final de un país "
+            + "o región durante un período determinado, normalmente de un año o trimestrales.")
     private String description = null;
-    
+
     @ApiModelProperty(value = "Valor del indicador descrito en el proyecto", required = true, example = "282318159740")
     private BigDecimal value = null;
-    
+
     @ApiModelProperty(value = "Unidad del indicador descrito en el proyecto", required = true, example = "US$")
     private String unit = null;
+
+    public IndicatorVO() {
+    }
+
+    public IndicatorVO(Indicator indicator) {
+        this.country = new CountryVO(indicator.getCountry());
+        this.year = indicator.getYear();
+        this.code = indicator.getCode().name();
+        this.name = indicator.getCode().getName();
+        this.description = indicator.getCode().getDescription();
+        this.unit = indicator.getCode().getUnit();
+        this.value = indicator.getValue();
+    }
 
     public CountryVO getCountry() {
         return country;

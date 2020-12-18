@@ -12,5 +12,5 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
      * @param code Código ISO alpha 2
      * @return El país asociado al código
      */
-    public Country findByCode(String code);
+    public Country findByCodeIgnoreCase(String code);
 }

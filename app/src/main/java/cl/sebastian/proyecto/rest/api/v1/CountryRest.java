@@ -2,7 +2,9 @@ package cl.sebastian.proyecto.rest.api.v1;
 
 import cl.sebastian.proyecto.rest.api.vo.CountryVO;
 import cl.sebastian.proyecto.rest.api.vo.ErrorVO;
+import cl.sebastian.proyecto.rest.exception.FailException;
 import cl.sebastian.proyecto.rest.loader.country.CountryLoader;
+import cl.sebastian.proyecto.rest.persistence.model.Country;
 import cl.sebastian.proyecto.rest.service.CacheService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +63,33 @@ public class CountryRest implements Serializable {
             @ApiParam(name = "X-API-APP", value = "Identificador de Credencial de Autenticación", required = true) @RequestHeader("X-API-APP") String app,
             @ApiParam(name = "X-API-KEY", value = "Llave de Credencial de Autenticación", required = true) @RequestHeader("X-API-KEY") String key,
             @ApiParam(name = "code", value = "Código ISO 3166-1 alpha-2 del país", required = true) @PathVariable("code") String code) {
+        /**
+         * Verificación de credenciales.
+         */
+        boolean authenticate = cacheService.authenticate(app, key);
+        if (authenticate) {
+            LOGGER.info("La credencial '{}' ha accedido al servicio", app);
+        } else {
+            throw new FailException(401);
+        }
+
+        /**
+         * Verificamos el código de país
+         */
+        if (StringUtils.length(code) != 2) {
+            throw new FailException(400, "El código de país es incorrecto");
+        }
+
+        /**
+         * Buscamos el país en la base de datos.
+         */
+        Country country = cacheService.getCountry(code);
+        if (country == null) {
+            throw new FailException(404, String.format("El código de país '%s' NO fue encontrado", code));
+        }
+
         LOGGER.debug("Petición de país");
-        return ResponseEntity.ok(new CountryVO());
+        return ResponseEntity.ok(new CountryVO(country));
     }
 
     @ApiOperation(value = "Obtiene la información de todos los paises del sistema.")
@@ -78,7 +107,29 @@ public class CountryRest implements Serializable {
             @ApiParam(name = "X-API-KEY", value = "Llave de Credencial de Autenticación", required = true) @RequestHeader("X-API-KEY") String key) {
         LOGGER.debug("Petición de paises");
 
-        List<CountryVO> countries = new ArrayList<>();
-        return ResponseEntity.ok(countries);
+        /**
+         * Verificación de credenciales.
+         */
+        boolean authenticate = cacheService.authenticate(app, key);
+        if (authenticate) {
+            LOGGER.info("La credencial '{}' ha accedido al servicio", app);
+        } else {
+            throw new FailException(401);
+        }
+
+        /**
+         * Buscamos el país en la base de datos.
+         */
+        List<Country> countries = cacheService.getCountries();
+        if (CollectionUtils.isEmpty(countries)) {
+            throw new FailException(404, "NO se han encontrado países en el sistema");
+        }
+
+        List<CountryVO> vos = new ArrayList<>();
+        countries.forEach(country -> {
+            vos.add(new CountryVO(country));
+        });
+
+        return ResponseEntity.ok(vos);
     }
 }

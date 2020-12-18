@@ -25,7 +25,7 @@ public class CountryManager implements Serializable {
     public Country getCountry(final String code) {
         Country country = null;
         if (StringUtils.isNotBlank(code)) {
-            country = countryRepository.findByCode(code);
+            country = countryRepository.findByCodeIgnoreCase(code);
         }
         return country;
     }
