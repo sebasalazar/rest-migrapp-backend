@@ -68,7 +68,7 @@ public class IndicatorRest implements Serializable {
     public ResponseEntity init(HttpServletRequest httpRequest,
             @ApiParam(name = "X-API-APP", value = "Identificador de Credencial de Autenticación", required = true) @RequestHeader("X-API-APP") String app,
             @ApiParam(name = "X-API-KEY", value = "Llave de Credencial de Autenticación", required = true) @RequestHeader("X-API-KEY") String key,
-            @ApiParam(name = "code", value = "Código ISO 3166-1 alpha-2 del país", required = true) @PathVariable("countryCode") String countryCode,
+            @ApiParam(name = "countryCode", value = "Código ISO 3166-1 alpha-2 del país", required = true) @PathVariable("countryCode") String countryCode,
             @ApiParam(name = "indicatorCode", value = "Código del indicador descrito en el proyecto", required = true) @PathVariable("indicatorCode") String indicatorCode,
             @ApiParam(name = "year", value = "Año de consulta", required = true) @PathVariable("year") Integer year) {
         /**

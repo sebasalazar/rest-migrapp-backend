@@ -72,7 +72,7 @@ public class IndicatorLoader implements Serializable {
                 // Ejempo http://api.worldbank.org/v2/country/CHL/indicator/NY.GDP.MKTP.CD?format=json
                 final String url = String.format("%s/%s/indicator/%s?format=json&per_page=125", WB_API_URL, country.getAbbr(), code.worldBank());
                 if (UrlValidator.getInstance().isValid(url)) {
-                    LOGGER.info("Accediendo a la URL '{}'", url);
+                    LOGGER.debug("Accediendo a la URL '{}'", url);
 
                     /**
                      * Llamada servicos REST
@@ -131,7 +131,7 @@ public class IndicatorLoader implements Serializable {
                 final String url = String.format("%s/DF_YI_ALL_EAR_INEE_NOC_NB/.%s.A..?detail=dataonly&format=codeonly",
                         ILO_API_URL, country.getAbbr());
                 if (UrlValidator.getInstance().isValid(url)) {
-                    LOGGER.info("Accediendo a la URL '{}'", url);
+                    LOGGER.debug("Accediendo a la URL '{}'", url);
 
                     /**
                      * Llamada servicos REST
@@ -183,7 +183,7 @@ public class IndicatorLoader implements Serializable {
 
                     Code[] values = Code.values();
                     for (Code code : values) {
-                        LOGGER.info("=== País '{}' # Indicador '{}' # Año más reciente: '{}' ===",
+                        LOGGER.debug("=== País '{}' # Indicador '{}' # Año más reciente: '{}' ===",
                                 country.getName(), code.name(), currentYear);
 
                         if (Code.SMI.equals(code)) {
