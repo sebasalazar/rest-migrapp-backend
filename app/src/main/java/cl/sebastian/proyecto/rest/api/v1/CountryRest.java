@@ -3,7 +3,6 @@ package cl.sebastian.proyecto.rest.api.v1;
 import cl.sebastian.proyecto.rest.api.vo.CountryVO;
 import cl.sebastian.proyecto.rest.api.vo.ErrorVO;
 import cl.sebastian.proyecto.rest.exception.FailException;
-import cl.sebastian.proyecto.rest.loader.country.CountryLoader;
 import cl.sebastian.proyecto.rest.persistence.model.Country;
 import cl.sebastian.proyecto.rest.service.CacheService;
 import io.swagger.annotations.Api;
@@ -14,7 +13,6 @@ import io.swagger.annotations.ApiResponses;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,18 +34,8 @@ public class CountryRest implements Serializable {
     private static final long serialVersionUID = 5743847088743006208L;
 
     @Autowired
-    private transient CountryLoader countryLoader;
-
-    @Autowired
     private transient CacheService cacheService;
     private static final Logger LOGGER = LoggerFactory.getLogger(CountryRest.class);
-
-    @PostConstruct
-    public void initRest() {
-        LOGGER.info("=== Preparando Servicio API de Países ===");
-        countryLoader.load();
-        LOGGER.info("=== Servicio API de Países listo para usarse ===");
-    }
 
     @ApiOperation(value = "Obtiene la información del país.")
     @ApiResponses(value = {
@@ -55,6 +43,7 @@ public class CountryRest implements Serializable {
         @ApiResponse(code = 400, message = "La petición es inválida.", response = ErrorVO.class),
         @ApiResponse(code = 401, message = "No está autorizado a consumir este servicio.", response = ErrorVO.class),
         @ApiResponse(code = 403, message = "Las credenciales proporcionadas no permiten consumir este servicio.", response = ErrorVO.class),
+        @ApiResponse(code = 404, message = "Información no encontrada.", response = ErrorVO.class),
         @ApiResponse(code = 412, message = "Ocurrió un error de validación", response = ErrorVO.class),
         @ApiResponse(code = 500, message = "Error interno del servidor.", response = ErrorVO.class)
     })
@@ -98,6 +87,7 @@ public class CountryRest implements Serializable {
         @ApiResponse(code = 400, message = "La petición es inválida.", response = ErrorVO.class),
         @ApiResponse(code = 401, message = "No está autorizado a consumir este servicio.", response = ErrorVO.class),
         @ApiResponse(code = 403, message = "Las credenciales proporcionadas no permiten consumir este servicio.", response = ErrorVO.class),
+        @ApiResponse(code = 404, message = "Información no encontrada.", response = ErrorVO.class),
         @ApiResponse(code = 412, message = "Ocurrió un error de validación", response = ErrorVO.class),
         @ApiResponse(code = 500, message = "Error interno del servidor.", response = ErrorVO.class)
     })

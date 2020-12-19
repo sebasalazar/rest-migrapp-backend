@@ -4,7 +4,6 @@ import cl.sebastian.proyecto.rest.api.vo.ErrorVO;
 import cl.sebastian.proyecto.rest.api.vo.IndicatorRequestVO;
 import cl.sebastian.proyecto.rest.api.vo.IndicatorVO;
 import cl.sebastian.proyecto.rest.exception.FailException;
-import cl.sebastian.proyecto.rest.loader.indicator.IndicatorLoader;
 import cl.sebastian.proyecto.rest.persistence.model.Code;
 import cl.sebastian.proyecto.rest.persistence.model.Country;
 import cl.sebastian.proyecto.rest.persistence.model.Indicator;
@@ -18,7 +17,6 @@ import java.io.Serializable;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,30 +40,21 @@ public class IndicatorRest implements Serializable {
     private static final long serialVersionUID = 5743847088743006208L;
 
     @Autowired
-    private transient IndicatorLoader indicatorLoader;
-    @Autowired
     private transient CacheService cacheService;
     private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorRest.class);
-
-    @PostConstruct
-    public void initRest() {
-        LOGGER.info("=== Preparando Servicio API de Indicadores ===");
-        indicatorLoader.load();
-        LOGGER.info("=== Servicio API de Indicadores listo para usarse ===");
-    }
 
     @ApiOperation(value = "Obtiene la información de un indicador.")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Objeto con la información del indicador", response = IndicatorVO.class),
         @ApiResponse(code = 400, message = "La petición es inválida.", response = ErrorVO.class),
         @ApiResponse(code = 401, message = "No está autorizado a consumir este servicio.", response = ErrorVO.class),
-        @ApiResponse(code = 401, message = "Dato no encontrado.", response = ErrorVO.class),
         @ApiResponse(code = 403, message = "Las credenciales proporcionadas no permiten consumir este servicio.", response = ErrorVO.class),
+        @ApiResponse(code = 404, message = "Información no encontrada.", response = ErrorVO.class),
         @ApiResponse(code = 412, message = "Ocurrió un error de validación", response = ErrorVO.class),
         @ApiResponse(code = 500, message = "Error interno del servidor.", response = ErrorVO.class)
     })
     @GetMapping(value = "/{countryCode}/{indicatorCode}/{year}/info", consumes = {"*/*"}, produces = {"application/json; charset=UTF-8"})
-    public ResponseEntity init(HttpServletRequest httpRequest,
+    public ResponseEntity searchOne(HttpServletRequest httpRequest,
             @ApiParam(name = "X-API-APP", value = "Identificador de Credencial de Autenticación", required = true) @RequestHeader("X-API-APP") String app,
             @ApiParam(name = "X-API-KEY", value = "Llave de Credencial de Autenticación", required = true) @RequestHeader("X-API-KEY") String key,
             @ApiParam(name = "countryCode", value = "Código ISO 3166-1 alpha-2 del país", required = true) @PathVariable("countryCode") String countryCode,
@@ -131,13 +120,13 @@ public class IndicatorRest implements Serializable {
         @ApiResponse(code = 200, message = "Objeto con la información del indicador", response = IndicatorVO.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "La petición es inválida.", response = ErrorVO.class),
         @ApiResponse(code = 401, message = "No está autorizado a consumir este servicio.", response = ErrorVO.class),
-        @ApiResponse(code = 401, message = "Dato no encontrado.", response = ErrorVO.class),
         @ApiResponse(code = 403, message = "Las credenciales proporcionadas no permiten consumir este servicio.", response = ErrorVO.class),
+        @ApiResponse(code = 404, message = "Información no encontrada.", response = ErrorVO.class),
         @ApiResponse(code = 412, message = "Ocurrió un error de validación", response = ErrorVO.class),
         @ApiResponse(code = 500, message = "Error interno del servidor.", response = ErrorVO.class)
     })
     @PostMapping(value = "/info", consumes = {"application/json; charset=UTF-8"}, produces = {"application/json; charset=UTF-8"})
-    public ResponseEntity init(HttpServletRequest httpRequest,
+    public ResponseEntity searchMany(HttpServletRequest httpRequest,
             @ApiParam(name = "X-API-APP", value = "Identificador de Credencial de Autenticación", required = true) @RequestHeader("X-API-APP") String app,
             @ApiParam(name = "X-API-KEY", value = "Llave de Credencial de Autenticación", required = true) @RequestHeader("X-API-KEY") String key,
             @ApiParam(name = "request", value = "Petición de consulta", required = true) @RequestBody IndicatorRequestVO request) {
