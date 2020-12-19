@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = {"/api/v1/update"}, consumes = {"application/json; charset=UTF-8"}, produces = {"application/json; charset=UTF-8"})
-@Api(value = "Información relativa a los indicadores económicos")
+@Api(value = "Actualiza la información de terceros")
 public class UpdateRest implements Serializable {
 
     private static final long serialVersionUID = 4398033065945222144L;
