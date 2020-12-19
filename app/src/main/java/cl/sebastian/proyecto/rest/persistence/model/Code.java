@@ -177,7 +177,7 @@ public enum Code {
         }
     },
     /**
-     * 5 - Salario Mínimo (US$ a precios actuales).
+     * 5 - Salario Mínimo (Moneda local).
      *
      * Código: SMI
      *
@@ -187,12 +187,12 @@ public enum Code {
      * determinado período laboral (hora, día o mes), que los empleadores deben
      * pagar a sus trabajadores por sus labores.
      *
-     * Unidad: US$.
+     * Unidad: Moneda Local.
      */
     SMI {
         @Override
         public String getName() {
-            return "Salario Mínimo (US$ a precios actuales).";
+            return "Salario Mínimo (Moneda local).";
         }
 
         @Override
@@ -202,7 +202,7 @@ public enum Code {
 
         @Override
         public String getUnit() {
-            return "US$ por año";
+            return "Moneda local";
         }
 
         @Override
