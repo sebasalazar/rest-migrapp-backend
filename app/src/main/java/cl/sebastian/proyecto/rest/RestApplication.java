@@ -1,10 +1,10 @@
 package cl.sebastian.proyecto.rest;
 
+import cl.sebastian.proyecto.rest.filter.SimpleCORSFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 
 @SpringBootApplication
 public class RestApplication {
@@ -14,9 +14,12 @@ public class RestApplication {
     }
 
     @Bean
-    public SecurityConfiguration securityConfiguration() {
-        return SecurityConfigurationBuilder.builder()
-                .enableCsrfSupport(true)
-                .build();
+    public FilterRegistrationBean simpleCORSFilter() {
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(new SimpleCORSFilter());
+        registration.addUrlPatterns("/*");
+        registration.setName("simpleCORSFilter");
+        registration.setOrder(1);
+        return registration;
     }
 }
