@@ -21,7 +21,7 @@ public class SimpleCORSFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        //nada
+        LOGGER.debug("Iniciando filtro");
     }
 
     @Override
@@ -31,7 +31,7 @@ public class SimpleCORSFilter implements Filter {
 
         String origin = StringUtils.trimToEmpty(request.getHeader("origin"));
         if (StringUtils.isBlank(origin)) {
-            LOGGER.error("=== Origen desconocido, se setea '*' ===");
+            LOGGER.debug("=== Origen desconocido, se setea '*' ===");
             origin = "*";
         }
 
@@ -41,8 +41,8 @@ public class SimpleCORSFilter implements Filter {
         response.addHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-API-APP, X-API-KEY");
 
         // Just ACCEPT and REPLY OK if OPTIONS
-        String requestMethod = StringUtils.upperCase(StringUtils.trimToEmpty(request.getMethod()));
-        if (StringUtils.equalsIgnoreCase("OPTIONS", requestMethod)) {
+        final String requestMethod = StringUtils.upperCase(StringUtils.trimToEmpty(request.getMethod()));
+        if (StringUtils.equals("OPTIONS", requestMethod)) {
             response.setLocale(CL);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             return;
@@ -53,7 +53,7 @@ public class SimpleCORSFilter implements Filter {
 
     @Override
     public void destroy() {
-        //nada
+        LOGGER.debug("Cerrando el filtro");
     }
 
 }
